@@ -61,7 +61,12 @@ export class Gamelogic {
 
     //update the gameboard and insert the player's number into the gameboard array
     setField(position: number, value: number): void {
-        this.gameField[position] = value;
+        if(this.gameField[position] === 1 || this.gameField[position] === 2 ){
+
+        }
+        else{
+            this.gameField[position] = value;
+        }
     }
 
     //change the tile color

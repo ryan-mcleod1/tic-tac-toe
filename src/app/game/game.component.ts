@@ -23,7 +23,9 @@ export class GameComponent implements OnInit {
     information[0].innerHTML = currentPlayer;
   }
 
+  //ADD A CHECK TO SEE THAT A PLAYER HAS NOT PLAYED IN THE SUBFIELD BEFORE
   async clickSubfield(subfield: any): Promise<void> {
+
     if (this.game.gameStatus === 1) {
       const position = subfield.currentTarget.getAttribute('position');   //This sets the postion on the board that the player clicked
 
