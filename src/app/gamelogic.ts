@@ -9,22 +9,7 @@ export class Gamelogic {
 
     gameStatus: Status;
 
-    //change the array to abd algorithm
-    winSituationsOne: Array<Array<number>> = [
-        [1, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 1, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 1],
-        [1, 1, 1, 0, 0, 0, 0, 0, 0],
-        [1, 0, 0, 1, 0, 0, 1, 0, 0],
-        [0, 1, 0, 0, 1, 0, 0, 1, 0],
-        [0, 0, 1, 0, 0, 1, 0, 0, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 1],
-        [0, 0, 1, 0, 1, 0, 1, 0, 0],
-        [1, 1, 1, 0, 0, 1, 0, 0, 0],
-        [0, 1, 0, 1, 1, 0, 0, 1, 0]
-    ];
-
-    winSituationsTwo: Array<Array<number>> = [
+    winSituations: Array<Array<number>> = [
         [2, 2, 2, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 2, 2, 2, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 2, 2, 2],
@@ -48,9 +33,7 @@ export class Gamelogic {
     gameStart(): void {
         this.gameField = [0, 0, 0, 0, 0, 0, 0, 0, 0];
         this.currentTurn = this.randomPlayerStart();
-        console.log(this.currentTurn);
         this.gameStatus = Status.START;
-
     }
 
     //make a random player start
@@ -61,12 +44,7 @@ export class Gamelogic {
 
     //update the gameboard and insert the player's number into the gameboard array
     setField(position: number, value: number): void {
-        if(this.gameField[position] === 1 || this.gameField[position] === 2 ){
-
-        }
-        else{
-            this.gameField[position] = value;
-        }
+        this.gameField[position] = value;
     }
 
     //change the tile color
@@ -75,44 +53,55 @@ export class Gamelogic {
         return colorClass;
     }
 
+    getCurrentPlayerClass(): string {
+        const playerClass = (this.currentTurn === 2) ? '.player-two' : '.player-one';
+        return playerClass;
+    }
+
     changePlayer(): void {
         this.currentTurn = (this.currentTurn === 2) ? 1 : 2;
     }
 
-    arrayEquals( a : Array<any> , b: Array<any>): boolean{
+    arrayEquals(a: Array<any>, b: Array<any>): boolean {
         return Array.isArray(a) && Array.isArray(b) && a.length === b.length
-        && a.every( (value, index) => value === b[index]) ;
+            && a.every((value, index) => value === b[index]);
     }
 
     async checkGameEndWinner(): Promise<boolean> {
         let isWinner = false;
 
-        const checkArray = ( this.currentTurn === 1 ) ? this.winSituationsOne : this.winSituationsTwo;
-
         const currentArray: number[] = [];
 
+        let winNumber: number = 0
+
         //Converts the array to the current players number
-        this.gameField.forEach( ( subfield, index ) => {
-            if ( subfield !== this.currentTurn ) {  //if the subfield/tile is not the current players number, make it a zero
+        this.gameField.forEach((subfield, index) => {
+            if (subfield !== this.currentTurn) {  //if the subfield/tile is not the current players number, make it a zero
                 currentArray[index] = 0;
             } else {
-                currentArray[ index ] = subfield;
+                currentArray[index] = 2;
             }
         });
 
-        //Then compairs the array of the current player to the array of possible wins
-        checkArray.forEach( ( checkfield ) => {
-            if( this.arrayEquals(checkfield, currentArray)  ){
-                isWinner = true;
-            }
+        this.winSituations.forEach((winArray) => {
+            winArray.forEach( (tile, i) => {
+                if(tile === currentArray[i] && tile !== 0 && currentArray[i] !== 0){
+                    winNumber++;
+                    if(winNumber === 3){
+                        isWinner = true;
+                    }
+                }
+            });
+            winNumber = 0;
         });
 
-        console.log(currentArray);
+        
 
         if (isWinner) {
             this.gameEnd();
             return true;
         } else {
+            winNumber = 0;
             return false;
         }
     }

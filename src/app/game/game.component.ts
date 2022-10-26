@@ -1,3 +1,4 @@
+import { style } from '@angular/animations';
 import { STRING_TYPE } from '@angular/compiler';
 import { Component, OnInit } from '@angular/core';
 import { Gamelogic } from '../gamelogic';
@@ -26,35 +27,53 @@ export class GameComponent implements OnInit {
   //ADD A CHECK TO SEE THAT A PLAYER HAS NOT PLAYED IN THE SUBFIELD BEFORE
   async clickSubfield(subfield: any): Promise<void> {
 
+    const position = subfield.currentTarget.getAttribute('position');   //This sets the postion on the board that the player clicked
+
     if (this.game.gameStatus === 1) {
-      const position = subfield.currentTarget.getAttribute('position');   //This sets the postion on the board that the player clicked
+      //if the gameboard array contains a zero the player can play his move
+      if (this.game.gameField[position] === 0) {
 
-      this.game.setField(position, this.game.currentTurn);  //sets the position and changes the colour of the tile to the player's colour
-      const color = this.game.getPlayerColorClass();
-      subfield.currentTarget.classList.add(color)
+        this.game.setField(position, this.game.currentTurn);  //sets the position and changes the colour of the tile to the player's colour
+        const color = this.game.getPlayerColorClass();
+        subfield.currentTarget.classList.add(color);
 
-      await this.game.checkGameEndWinner().then( ( end: boolean ) => {
+        const currentPlayer = this.game.getCurrentPlayerClass();
 
-        if( this.game.gameStatus === 0 && end ){
+        let highlightPlayer = document.querySelector('.player-one');
+        // highlightPlayer = style( { color:'rgb(83, 169, 83)' } );
+        // currentPlayer[0].innerHTML = style( { color:'rgb(83, 169, 83)' } );
+
+        await this.game.checkGameEndWinner().then((end: boolean) => {
+
+          if (this.game.gameStatus === 0 && end) {
+            const information = document.querySelectorAll('.current-status');
+            information[0].innerHTML = "The winner is Player: " + this.game.currentTurn;  //Tell the players who won
+          }
+        });
+
+        await this.game.checkkGameEndFull().then((end: boolean) => {
+
+          if (this.game.gameStatus === 0 && end) {
+            const information = document.querySelectorAll('.current-status');
+            information[0].innerHTML = "No winner, draw";   //Tell the players its a draw
+          }
+        });
+
+        this.game.changePlayer(); //change the player
+
+        if (this.game.gameStatus === 1) {
+          const currentPlayer = 'Current turn : Player ' + this.game.currentTurn;
           const information = document.querySelectorAll('.current-status');
-          information[0].innerHTML = "The winner is Player: " + this.game.currentTurn;  //Tell the players who won
+
+          information[0].innerHTML = currentPlayer;   //change the current players turn 
         }
-      }); 
-
-      await this.game.checkkGameEndFull().then( ( end: boolean ) => {
-
-        if( this.game.gameStatus === 0 && end ){
+      }
+      else{
+        if (this.game.gameStatus === 1) {
+          const currentPlayer = 'Tile has already been played! '+ 'Current turn: Player ' + this.game.currentTurn;
           const information = document.querySelectorAll('.current-status');
-          information[0].innerHTML = "No winner, draw";   //Tell the players its a draw
+          information[0].innerHTML = currentPlayer;   //change the current players turn
         }
-      });
-
-      this.game.changePlayer(); //change the player
-
-      if (this.game.gameStatus === 1) {
-        const currentPlayer = 'Current turn : Player ' + this.game.currentTurn;
-        const information = document.querySelectorAll('.current-status');
-        information[0].innerHTML = currentPlayer;   //change the current players turn
       }
     }
 
